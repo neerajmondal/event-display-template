@@ -1,0 +1,22 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "eventdisplay-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/eventdisplay/EventdisplayWebPart.js",
+          "manifest": "./src/webparts/eventdisplay/EventdisplayWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {"jquery": {
+    "path": "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js",
+    "globalName": "$"
+    }
+  },
+  "localizedResources": {
+    "EventdisplayWebPartStrings": "lib/webparts/eventdisplay/loc/{locale}.js"
+  }
+}

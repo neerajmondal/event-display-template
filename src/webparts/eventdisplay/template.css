@@ -66,6 +66,18 @@
   color: #4F6F74;
   font-weight: 600;
 }
+.event_desc>h3>a {
+  color: #4F6F74;
+  text-decoration: none;
+
+}
+.event_desc>h3>a:hover {
+  color: #4F6F74;
+  text-decoration: underline;
+}
+.event_desc>h3>a:visited {
+  color: #4F6F74;
+}
 .timelog {
   color: #72B450;
   margin-bottom: 3px;

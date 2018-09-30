@@ -22,6 +22,8 @@ import * as _ from "lodash";
 export interface IEventdisplayWebPartProps {
   linkShowMore: string;
   topNResult:number;
+  EventCategory:string;
+  FilterCategory:string;
 }
 
 export default class EventdisplayWebPart extends BaseClientSideWebPart<IEventdisplayWebPartProps> {
@@ -56,10 +58,10 @@ export default class EventdisplayWebPart extends BaseClientSideWebPart<IEventdis
     </div>
 </div>`;
 
-    this.QryString="%27contenttype:%22Valo%20Calendar%20Event%22%27&trimduplicates=false&rowlimit=500&selectproperties=%27title%2cLocation%2cValoEventCategoryOWSCHCS%2cEventDateOWSDATE%2cEndDateOWSDATE%27";
+    this.QryString="%27contenttype:%22Valo%20Calendar%20Event%22%27&trimduplicates=true&rowlimit=500&selectproperties=%27title%2cLocation%2cValoEventCategoryOWSCHCS%2cEventDateOWSDATE%2cEndDateOWSDATE%2cValoFilterCategoryOWSCHCS%2cOriginalPath%27";
     this.BaseDomainUrl = Utils.getAbsoluteDomainUrl();
-
-    this.getSearchResults(this.QryString)
+    let refinerQry=this.GetRefinerFilters();
+    this.getSearchResults(this.QryString+refinerQry)
     .then((searchResp: ISPSearchResult[]): void => {
     
         let srchREsp:ISPSearchResult[]=  searchResp;
@@ -72,6 +74,8 @@ export default class EventdisplayWebPart extends BaseClientSideWebPart<IEventdis
             evtEntry.EventCategory=(<any>item).ValoEventCategoryOWSCHCS;
             evtEntry.StartDate= moment((<any>item).EventDateOWSDATE);
             evtEntry.EndDate= moment((<any>item).EndDateOWSDATE);
+            evtEntry.FilterCategory=((<any>item).ValoFilterCategoryOWSCHCS)?(<any>item).ValoFilterCategoryOWSCHCS:'';
+            evtEntry.OriginalPath=(<any>item).OriginalPath;
 
                 if(evtEntry.StartDate>moment(new Date())){
                             evtCollection.push(evtEntry);
@@ -93,8 +97,8 @@ eventHtml+=`<!-- single item -->
         <span class="month">${item.StartDate.format("MMM")}</span>
     </div>
     <div class="event_desc">
-        <h3>${item.EventName}</h3>
-        <div class="timelog"><i class="far fa-clock"></i> <span>${item.EndDate.local().format("HH:mm")}</span></div>
+        <h3><a href="${item.OriginalPath}" target="_blank">${item.EventName}</a></h3>
+        <div class="timelog"><i class="far fa-clock"></i> <span>${item.StartDate.local().format("hh:mm A")}</span></div>
         <div class="timelog">${item.EventCategory}</div>
     </div>
 </div>
@@ -104,6 +108,8 @@ eventHtml+=`<!-- single item -->
 
 $("#widget_body").append(eventHtml) ;  
         
+
+
     });
   }
 
@@ -125,7 +131,7 @@ $("#widget_body").append(eventHtml) ;
             }  
 
             if (!this._isNull(res)) {  
-                const fields: string = "Title,Location,ValoEventCategoryOWSCHCS,EventDateOWSDATE,EndDateOWSDATE";  
+                const fields: string = "Title,Location,ValoEventCategoryOWSCHCS,EventDateOWSDATE,EndDateOWSDATE,ValoFilterCategoryOWSCHCS,OriginalPath";  
 
                 // Retrieve all the table rows  
                 if (typeof res.PrimaryQueryResult.RelevantResults.Table !== 'undefined') {  
@@ -189,6 +195,24 @@ private _setSearchResults(crntResults: ICells[], fields: string): any[] {
     return temp;  
 }  
 
+private GetRefinerFilters():string {
+  let refinerstring :string='';
+ if(this.properties.EventCategory!=undefined && this.properties.FilterCategory!=undefined){
+    if(this.properties.EventCategory.trim() != '' && this.properties.FilterCategory.trim() != ''){
+
+        refinerstring='&refinementfilters=%27and(ValoEventCategoryOWSCHCS:equals("'+this.properties.EventCategory.trim()+'"),ValoFilterCategoryOWSCHCS:equals("'+this.properties.FilterCategory.trim()+'"))%27';
+    }
+    else if(this.properties.EventCategory.trim() != '' && this.properties.FilterCategory.trim() == '' ){
+        refinerstring='&refinementfilters=%27ValoEventCategoryOWSCHCS:equals("'+this.properties.EventCategory.trim()+'")%27';
+    }
+    else if(this.properties.EventCategory.trim() == '' && this.properties.FilterCategory.trim() != '' ){
+        refinerstring='&refinementfilters=%27ValoFilterCategoryOWSCHCS:equals("'+this.properties.FilterCategory.trim()+'")%27';
+    }
+ }
+
+  return refinerstring;
+}
+
 /** 
  * Check if the value is null or undefined 
  * 
@@ -222,6 +246,14 @@ private _isNull(value: any): boolean {
                   label: "Show More Link Url",
                   value:''
                 }),
+                PropertyPaneTextField('EventCategory', {
+                    label: "Event Category Refiner",
+                    value:''
+                  }),
+                  PropertyPaneTextField('FilterCategory', {
+                    label: "Filter Category Refiner",
+                    value:''
+                  }),
                 PropertyPaneTextField('topNResult',{label:'Top N Results',value:'3'})
               ]
             }

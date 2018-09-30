@@ -13,5 +13,6 @@ export class EventValues{
     public StartDate:Moment;
     public EndDate:Moment;
     public EventCategory:string;
-
+    public FilterCategory:string;
+    public OriginalPath:string;
 }

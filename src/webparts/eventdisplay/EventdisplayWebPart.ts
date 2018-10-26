@@ -40,11 +40,11 @@ export default class EventdisplayWebPart extends BaseClientSideWebPart<IEventdis
   public render(): void {
     this.domElement.innerHTML = `
     <div class="container">
-    <div class="wraper mt-5">
+    <div class="wraper">
          <!-- main div copy and paste this section -->
          <div class="widget shadow">
              <!-- header text -->
-             <div class="widget-header">Events</div>
+             <!--<div class="widget-header">Events</div>-->
              <!-- widget body -->
              <div class="widget_body" id="widget_body">
                 
